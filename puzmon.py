@@ -1,4 +1,5 @@
 #インポート
+import random
 
 #グローバル変数の宣言
 ELEMENT_SYMBOLS={
@@ -94,9 +95,18 @@ def main():
         print('*** GAME OVERA ***')
     print(f'倒したモンスター数={kills}')
 
-def do_battle(monster):
+def do_battle(party,monster):
     print_monster_name(monster)
     print('が現れた!')
+    while True:
+        on_player_turn(party,monster)
+        if monster['hp'] <= 0:
+            break
+        on_enemy_turn(party,monster)
+        if party['hp'] <= 0:
+
+            print('パーティーのHPは0になった')
+            return 0
     print_monster_name(monster)
     print('を倒した!')
     return 1
@@ -114,13 +124,14 @@ def go_dungeon(party,monster_list):
     print(f'{party['name']}のパーティー(HP={party['hp']})はダンジョンに到達した!')
     show_party(party)
     for m in monster_list:
-            kills += do_battle(m)
+            kills += do_battle(party,m)
             if party['hp'] <= 0:
                 print(f'{party['name']}はダンジョンから逃げ出した')
                 break
             print(f'{party['name']}はさらに奥に進んだ')
             print('======================')
-    print(f'{party['name']}はダンジョンを制覇した!')
+    if kills == len(monster_list):
+        print(f'{party['name']}はダンジョンを制覇した!')
     return kills
 
 def orgnize_party(player_name,friends):
@@ -147,6 +158,31 @@ def show_party(party):
         print(f' 攻撃= {f['ap']}')
         print(f' 防御= {f['dp']}')
     print('--------------------------')
-        
+
+def on_player_turn(party,monster):
+    print(f'\n【{party['name']}のターン】(HP={party['hp']})')
+    command=input('コマンド? >')
+    do_attack(monster,command)
+
+def on_enemy_turn(party,monster):
+    print(f'\n【',end='')
+    print_monster_name(monster)
+    print(f'のターン】(HP={monster['hp']})')
+    do_enemy_attack(party)
+
+def do_attack(monster,command):
+    damage=hash(command) % 50
+    rand= random.uniform(-0.1,0.1)+1
+    damage = int(damage * rand)
+    print(f'{damage}のダメージを与えた')
+    monster['hp'] -= damage
+    
+
+def do_enemy_attack(party):
+    damage=200
+    print(f'{damage}のダメージを受けた')
+    party['hp'] -= damage
+    
+
 #メイン関数の呼び出し
 main()
